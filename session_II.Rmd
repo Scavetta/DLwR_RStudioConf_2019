@@ -1,0 +1,33 @@
+---
+title: "Session IV: Text processing"
+author: "Rick Scavetta"
+output:
+  html_document:
+  fig_caption: true
+toc: true
+toc_float:
+  collapsed: false
+smooth_scroll: false
+toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, eval = FALSE)
+
+# Initialize package
+library(keras)
+```
+
+## Learning Goals
+
+Developing deep learning to two core questions in supervised learning: Classification and Regression. 
+
+The UCI Abalone data-set is a small and easy starting point since it can be used for predicting age as either a categorical or continuous variable, leading to the 
+
+## Outline
+
+- The training, validation and test sets.
+- Four ways of dealing with over-fitting: more data, capacity, dropout, regularization.
+- The universal workflow of machine learning.
+- Introduction to tfruns package.
+- Evalutating models with `tfruns`.

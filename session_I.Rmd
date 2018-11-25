@@ -1,0 +1,170 @@
+---
+title: "Session I: Introduction to Deep Learning"
+author: "Rick Scavetta"
+output:
+  html_document:
+  fig_caption: true
+toc: true
+toc_float:
+  collapsed: false
+smooth_scroll: false
+toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, eval = FALSE)
+
+# Initialize package
+library(keras)
+```
+
+## Learning Goals
+
+Developing deep learning to two core questions in supervised learning: Classification and Regression. 
+
+The UCI Abalone data-set is a small and easy starting point since it can be used for predicting age as either a categorical or continuous variable, leading to the 
+
+## Outline
+
+- What is a tensor and why use it?
+- What is keras and what is its relationship to TensorFlow?
+- What is the deep in deep learning? ANNs and densely-connected networks.
+- The math of deep learning: Basics of matrix algebra, gradient descent, backpropagarion, chain rule.
+- The four stages of Deep learning.
+- Parameters and hyper-parameter.
+- Functions distinguishing classification and regression: loss and optimizer functions.
+
+## Functions in this session:
+
+Table: (\#tab:FunIa) Basic `keras` functions.
+
+| Function                   | Description                                       |
+|:---------------------------|:--------------------------------------------------| 
+| [`keras_model_sequential()`](https://www.rdocumentation.org/packages/keras/versions/2.2.0/topics/keras_model_sequential) | Keras Model composed of a linear stack of layers. |
+| `layer_dense()`	           | Add a densely-connected NN layer to an output.    |
+| `compile()`                | Configure a Keras model for training.             |
+| `fit()`                    | Train a Keras model.                              |
+
+```{r results = 'asis', eval = TRUE}
+knitr::kable(mtcars[1:5,])
+```
+
+<style type="text/css">
+.tg  {border-collapse:collapse;border-spacing:0;}
+.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
+.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+</style>
+<table class="tg">
+  <tr>
+    <th class="tg-0pky">Function</th>
+    <th class="tg-0pky">Description</th>
+  </tr>
+  <tr>
+    <td class="tg-0pky">[`keras_model_sequential()`](https://www.rdocumentation.org/packages/keras/versions/2.2.0/topics/keras_model_sequential)</td>
+    <td class="tg-0pky">Keras Model composed of a linear stack of layers.</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">`layer_dense()`</td>
+    <td class="tg-0pky">Add a densely-connected NN layer to an output.</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">`compile()`</td>
+    <td class="tg-0pky">Configure a Keras model for training.</td>
+  </tr>
+  <tr>
+    <td class="tg-0pky">`fit()`</td>
+    <td class="tg-0pky">Train a Keras model.</td>
+  </tr>
+</table>
+
+
+
+```{r tables-mtcars, eval = TRUE}
+knitr::kable(iris[1:5, ], caption = 'A caption')
+```
+
+
+| Notation               | Description                                                    |
+|------------------------|----------------------------------------------------------------|
+| `>`                    | The R command prompt.                                          |
+| `n`                    | An object name.                                                |
+| `<-`                   | The assign operator.                                           |
+| `log2()`               | The function to be solved. The solution will be assigned to n. |
+| `8`                    | The function's argument.                                       |
+| `#`                    | The beginning of the comment.                                  |
+| `The logarithm of ...` | The comment.                                                   |
+| `[]`                   | Refers to the index of the output.                             |
+| `1`                    | The index number.                                              |
+| `3`                    | The value at position `[1]`.                                   |
+
+
+The following table will help you to make sense of the above example.
+
+Table: (\#tab:syntax) R's syntax.
+
+| Notation               | Description                                                    |
+|------------------------|----------------------------------------------------------------|
+| `>`                    | The R command prompt.                                          |
+| `n`                    | An object name.                                                |
+| `<-`                   | The assign operator.                                           |
+| `log2()`               | The function to be solved. The solution will be assigned to n. |
+| `8`                    | The function's argument.                                       |
+| `#`                    | The beginning of the comment.                                  |
+| `The logarithm of ...` | The comment.                                                   |
+| `[]`                   | Refers to the index of the output.                             |
+| `1`                    | The index number.                                              |
+| `3`                    | The value at position `[1]`.                                   |
+
+<table>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>exercise.cap</code></td>
+<td>Caption for exercise chunk (defaults to "Code")</td>
+</tr>
+<tr class="even">
+<td><code>exercise.eval</code></td>
+<td>Whether to pre-evaluate the exercise so the reader can see some default output (defaults to <code>FALSE</code>).</td>
+</tr>
+<tr class="odd">
+<td><code>exercise.lines</code></td>
+<td>Lines of code for exercise editor (default to size of code chunk).</td>
+</tr>
+<tr class="even">
+<td><code>exercise.timelimit</code></td>
+<td>Number of seconds to limit execution time to (defaults to 30).</td>
+</tr>
+<tr class="odd">
+<td><code>exercise.checker</code></td>
+<td>Function used to check exercise answers.</td>
+</tr>
+<tr class="even">
+<td><code>exercise.completion</code></td>
+<td>Whether to enable code completion in the exercise editor.</td>
+</tr>
+<tr class="odd">
+<td><code>exercise.diagnostics</code></td>
+<td>Whether to enable code diagnostics in the exercise editor.</td>
+</tr>
+<tr class="even">
+<td><code>exercise.startover</code></td>
+<td>Whether to include a "Start Over" button for the exercise.</td>
+</tr>
+</tbody>
+</table>
+
+
+And another one:
+
+<p>| Function                   | Description                                       |
+|:---------------------------|:--------------------------------------------------| 
+| <a href="https://www.rdocumentation.org/packages/keras/versions/2.2.0/topics/keras_model_sequential"><code>keras_model_sequential()</code></a> | Keras Model composed of a linear stack of layers. |
+| <code>layer_dense()</code>               | Add a densely-connected NN layer to an output.    |
+| <code>compile()</code>                | Configure a Keras model for training.             |
+| <code>fit()</code>                    | Train a Keras model.                              |</p>
