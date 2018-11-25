@@ -168,3 +168,6 @@ And another one:
 | <code>layer_dense()</code>               | Add a densely-connected NN layer to an output.    |
 | <code>compile()</code>                | Configure a Keras model for training.             |
 | <code>fit()</code>                    | Train a Keras model.                              |</p>
+
+
+
