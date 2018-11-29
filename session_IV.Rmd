@@ -20,9 +20,7 @@ library(keras)
 
 ## Learning Goals
 
-Developing deep learning to two core questions in supervised learning: Classification and Regression. 
 
-The UCI Abalone data-set is a small and easy starting point since it can be used for predicting age as either a categorical or continuous variable, leading to the 
 
 ## Outline
 

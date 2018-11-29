@@ -12,7 +12,6 @@ library(learnr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-
 ## Topic 1
 
 ### Exercise 

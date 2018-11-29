@@ -1,30 +1,35 @@
-|---
-title: "Session I: Introduction to Deep Learning"
+---
+title: "Introduction to Deep Learning"
 author: "Rick Scavetta"
 output:
   html_document:
   fig_caption: true
-toc: true
-toc_float:
-  collapsed: false
-smooth_scroll: false
-toc_depth: 3
+  toc: true
+  toc_float:
+    collapsed: false
+    smooth_scroll: false
+  toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache = TRUE, eval = FALSE)
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, eval = TRUE)
 
-# Initialize package
+# Initialize packages
 library(keras)
+library(tidyverse)
 ```
 
-## Learning Goals
+# Session 1 {.tabset .tabset-fade .tabset-pills}
+
+## Intro
+
+### Learning Goals
 
 Developing deep learning to two core questions in supervised learning: Classification and Regression. 
 
 The UCI Abalone data-set is a small and easy starting point since it can be used for predicting age as either a categorical or continuous variable, leading to the 
 
-## Outline
+### Outline
 
 - What is a tensor and why use it?
 - What is keras and what is its relationship to TensorFlow?
@@ -34,9 +39,9 @@ The UCI Abalone data-set is a small and easy starting point since it can be used
 - Parameters and hyper-parameter.
 - Functions distinguishing classification and regression: loss and optimizer functions.
 
-## Functions in this session:
+### Functions in this session:
 
-Table: (\#tab:FunIa) Basic `keras` functions.
+Basic `keras` functions:
 
 | Function                   | Description                                       |
 |:---------------------------|:--------------------------------------------------| 
@@ -45,92 +50,10 @@ Table: (\#tab:FunIa) Basic `keras` functions.
 | `compile()`                | Configure a Keras model for training.             |
 | `fit()`                    | Train a Keras model.                              |
 
-```{r results = 'asis', eval = TRUE}
-knitr::kable(mtcars[1:5,])
-```
 
-<style type="text/css">
-.tg  {border-collapse:collapse;border-spacing:0;}
-.tg td{font-family:Arial, sans-serif;font-size:14px;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
-.tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:10px 5px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:black;}
-.tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
-</style>
-<table class="tg">
-  <tr>
-    <th class="tg-0pky">Function</th>
-    <th class="tg-0pky">Description</th>
-  </tr>
-  <tr>
-    <td class="tg-0pky">[`keras_model_sequential()`](https://www.rdocumentation.org/packages/keras/versions/2.2.0/topics/keras_model_sequential)</td>
-    <td class="tg-0pky">Keras Model composed of a linear stack of layers.</td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">`layer_dense()`</td>
-    <td class="tg-0pky">Add a densely-connected NN layer to an output.</td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">`compile()`</td>
-    <td class="tg-0pky">Configure a Keras model for training.</td>
-  </tr>
-  <tr>
-    <td class="tg-0pky">`fit()`</td>
-    <td class="tg-0pky">Train a Keras model.</td>
-  </tr>
-</table>
+## Abalone Dataset
 
-
-
-```{r tables-mtcars, eval = TRUE}
-knitr::kable(iris[1:5, ], caption = 'A caption')
-```
-
-
-| Notation               | Description                                                    |
-|------------------------|----------------------------------------------------------------|
-| `>`                    | The R command prompt.                                          |
-| `n`                    | An object name.                                                |
-| `<-`                   | The assign operator.                                           |
-| `log2()`               | The function to be solved. The solution will be assigned to n. |
-| `8`                    | The function's argument.                                       |
-| `#`                    | The beginning of the comment.                                  |
-| `The logarithm of ...` | The comment.                                                   |
-| `[]`                   | Refers to the index of the output.                             |
-| `1`                    | The index number.                                              |
-| `3`                    | The value at position `[1]`.                                   |
-
-
-The following table will help you to make sense of the above example.
-
-Table: (\#tab:syntax) R's syntax.
-
-| Notation               | Description                                                    |
-|------------------------|----------------------------------------------------------------|
-| `>`                    | The R command prompt.                                          |
-| `n`                    | An object name.                                                |
-| `<-`                   | The assign operator.                                           |
-| `log2()`               | The function to be solved. The solution will be assigned to n. |
-| `8`                    | The function's argument.                                       |
-| `#`                    | The beginning of the comment.                                  |
-| `The logarithm of ...` | The comment.                                                   |
-| `[]`                   | Refers to the index of the output.                             |
-| `1`                    | The index number.                                              |
-| `3`                    | The value at position `[1]`.                                   |
-
-
-
-
-And another one:
-
-<p>| Function                   | Description                                       |
-|:---------------------------|:--------------------------------------------------| 
-| <a href="https://www.rdocumentation.org/packages/keras/versions/2.2.0/topics/keras_model_sequential"><code>keras_model_sequential()</code></a> | Keras Model composed of a linear stack of layers. |
-| <code>layer_dense()</code>               | Add a densely-connected NN layer to an output.    |
-| <code>compile()</code>                | Configure a Keras model for training.             |
-| <code>fit()</code>                    | Train a Keras model.                              |</p>
-
-
-## Abalone Examples
-
+### Part 1: Data Preparation
 
 | Variable       | Type       | Unit  | Description                 |
 |----------------|------------|-------|-----------------------------|
@@ -146,30 +69,93 @@ And another one:
 
 The number of rings, variable `rings`, is the value to predict as either a continuous value or as a classification problem. 
 
-```{r eval = TRUE}
+this data set is also available in the `AppliedPredictiveModeling` package.
 
-abalone <- read.csv("Abalone/abalone.data", 
-                   col.names = c("sex",
-                                 "length",
-                                 "diameter",
-                                 "height",
-                                 "whole_weight",
-                                 "shucked_weight",
-                                 "viscera_weight",
-                                 "shell_weight",
-                                 "rings"))
+```{r eval = FALSE}
+# load the library
+library(AppliedPredictiveModeling)
+data(abalone)
+newdata <- abalone
+dim(abalone)
+head(abalone)
 
 ```
 
-### Explore the data set
+
+### Outline of terms
+
+We'll perform a regression to predict a continouous response variable from 8 predictor variables. To accommodate for this different analytical problem, we'll use:
+
+- Normalization for the input data: z scores
+- Loss function: `mse`
+- Metric: `mae`
+- No final activation function (i.e. scalar)
+
+And since we have a really small data set we'll have:
+
+- A very simple network architecture, and
+- K-fold crossvalidation.
+
+
+
+### Obtain data &  Prepare data:
 
 ```{r eval = TRUE}
-library(ggplot2)
+
+abalone_names <- c("Type",
+                   "LongestShell",
+                   "Diameter",
+                   "Height",
+                   "WholeWeight",
+                   "WhuckedWeight",
+                   "VisceraWeight",
+                   "ShellWeight",
+                   "Rings")
+
+abalone <- read.csv("Abalone/abalone.data",
+                    header = F,
+                    col.names = abalone_names)
+
+
+
+# Convert sex to integer :
+abalone %>% 
+  mutate(Type = as.integer(Type)) -> abalone
+
+```
+
+```{r}
+glimpse(abalone)
+```
+
+```{r}
+abalone %>% 
+  group_by(Rings) %>% 
+  summarise(n = n()) %>% 
+  knitr::kable()
+```
+
+All values from 1-27 & 29 are present. The training and test set should contain at least one representative of each group.
+
+### Examine data:
+
+```{r}
 tabplot::tableplot(abalone)
 ```
 
-```{r eval = TRUE}
-ggplot(abalone, aes(rings)) +
+### plot the data anew:
+
+```{r}
+abalone %>% 
+  select(-Rings) %>% 
+  gather() %>%
+  ggplot(aes(key, value)) +
+  geom_jitter(shape = 1, alpha = 0.2)
+```
+
+
+```{r}
+ggplot(abalone, aes(Rings)) +
   geom_bar() +
   scale_x_continuous("Number of Rings", breaks = 1:29) +
   coord_cartesian(expand = 0) +
@@ -177,19 +163,252 @@ ggplot(abalone, aes(rings)) +
 
 ```
 
-number of training instances n = `r round(0.8*nrow(abalone))`.
+## Training and Test sets
 
-number of test instances n = `r round(0.2*(nrow(abalone)))`.
+```{r}
+train_n <- round(0.8*nrow(abalone))
+test_n <- round(0.2*nrow(abalone))
+```
+
+number of training instances n = `r train_n`.
+
+number of test instances n = `r test_n`.
 
 number of features d = `r ncol(abalone) - 1`.
 
 number of classes K = `r length(unique(abalone$rings))`.
 
-```{r eval = TRUE}
-abalone_results <- abalone[,9]
-abalone_data <- abalone[1:8]
+### Split up training and test
 
-# 3342/(3342 + 835)
+
+```{r}
+
+# Convert to a matrix:
+abalone <- as.matrix(abalone)
+
+# add additional vector to make match even
+add_on_matrix <- matrix(999, ncol = 8, nrow = 28)
+add_on_vector <- c(1:27,29)
+
+set.seed(136)
+train_index <- sample(seq_len(nrow(abalone)), train_n)
+
+train_data <- unname(abalone[train_index, -9])
+train_data <- rbind(train_data, add_on_matrix)
+
+train_labels <- unname(abalone[train_index, 9])
+train_labels <- c(train_labels, add_on_vector)
+
+test_data <- unname(abalone[-train_index, -9])
+test_data <- rbind(test_data, add_on_matrix)
+
+test_labels <- unname(abalone[-train_index, 9])
+test_labels <- c(test_labels, add_on_vector)
+
+rm(abalone, abalone_names, train_n, test_n, train_index)
+
 ```
 
-### Split up training and test
+
+```{r}
+str(train_data)
+str(test_data)
+
+```
+
+## Labels
+
+The `_labels` objects contain the news wire labels. Each newswire can only have one *label* (i.e. "sigle-label"), from a total of 46 possible *classes* (i.e. "multi-class"). The classes are just given numerical values (0 - 45), it doesn't matter what they are actually called, although that information would be helpful in understanding mis-labeling.
+
+```{r}
+table(train_labels)
+```
+
+```{r}
+table(test_labels)
+```
+
+Some classes are very common, which we'll see play out in our confusion matrix below 
+
+```{r plotLabelsPre}
+# Note plyr not dplyr here. I'm just using a shortcut
+library(ggplot2)
+train_labels %>% 
+  plyr::count() %>%
+  ggplot(aes(x, freq)) +
+  geom_col()
+```
+
+The distribution of the test and training set should be roughly equivalent, so let's have a look. 
+
+```{r}
+data.frame(x = train_labels) %>% 
+  group_by(x) %>% 
+  summarise(train_freq = 100*n()/length(train_labels)) -> train_labels_df
+
+data.frame(x  = test_labels) %>% 
+  group_by(x) %>% 
+  summarise(test_freq = 100 * n()/length(test_labels)) %>% 
+  inner_join(train_labels_df, by="x") %>% 
+  gather(key, value, -x) %>% 
+  ggplot(aes(x, value, fill = key)) +
+  geom_col(position = "dodge") +
+  # scale_y_continuous("Percentage", limits = c(0,20), expand = c(0,0)) +
+  # scale_x_continuous("Label", breaks = 0:45, expand = c(0,0)) +
+  scale_fill_manual("", labels = c("test","train"), values = c("#AEA5D0", "#54C8B7")) +
+  theme_classic() +
+  theme(legend.position = c(0.8, 0.8),
+        axis.line.x = element_blank(),
+        axis.text = element_text(colour = "black"))
+```
+
+We treat these just like how we treated the MNIST labels in the previous unit. We make the format match the output we expect to get from softmax so that we can make a direct comparison.
+
+```{r prepLabels}
+train_labels_vec <- to_categorical(train_labels)
+test_labels_vec <- to_categorical(test_labels)
+```
+
+```{r}
+colSums(test_labels_vec)
+colSums(train_labels_vec)
+```
+
+
+```{r strLabelsPost}
+str(train_labels_vec)
+str(test_labels_vec)
+```
+
+## As a Classification Problem
+
+### Part 2: Define Network
+
+```{r architecture}
+network <- keras_model_sequential() %>% 
+  layer_dense(units = 2^5, activation = "relu", input_shape = 8) %>% 
+  # layer_dense(units = 2^5, activation = "relu") %>% 
+  layer_dense(units = 30, activation = "softmax")
+
+```
+
+### View a summary of the network
+
+```{r summary}
+summary(network)
+```
+
+### Compile
+
+```{r compile}
+network %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("accuracy")
+)
+```
+
+## Part 3: Validate our approach
+
+Let's set apart 20% of the samples in our training data to use as a validation set:
+
+```{r}
+
+index <- 1:(0.2*nrow(train_data))
+
+val_data_vec <- train_data[index,]
+train_data_vec <- train_data[-index,]
+
+train_labels_vec_original <- train_labels_vec
+val_labels_vec <- train_labels_vec[index,]
+train_labels_vec = train_labels_vec[-index,]
+
+```
+
+Now let's train our network for 20 epochs:
+
+```{r echo=TRUE, results = "hide", warning = FALSE}
+history <- network %>% fit(
+  train_data_vec,
+  train_labels_vec,
+  epochs = 20,
+  batch_size = 512,
+  validation_data = list(val_data_vec, val_labels_vec)
+)
+```
+
+Let's display its loss and accuracy curves:
+
+```{r}
+plot(history)
+```
+
+The network begins to overfit after nine epochs. Let's train a new network from scratch for nine epochs and then evaluate it on the test set.
+
+```{r, echo=TRUE, results='hide'}
+network <- keras_model_sequential() %>% 
+  layer_dense(units = 2^5, activation = "relu", input_shape = 8) %>% 
+  # layer_dense(units = 2^5, activation = "relu") %>% 
+  layer_dense(units = 30, activation = "softmax")
+  
+network %>% compile(
+  optimizer = "rmsprop",
+  loss = "categorical_crossentropy",
+  metrics = c("accuracy")
+)
+
+history <- network %>% fit(
+  train_data_vec,
+  train_labels_vec,
+  epochs = 9,
+  batch_size = 512,
+  validation_data = list(val_data_vec, val_labels_vec)
+)
+```
+
+# Regression using sparse categorical crossentropy
+
+Alternatively, we could have just used the original integer values. To showcase this, let's create a new network, `network_int`, so that we don't mix up our results. The network architecture is the same:
+
+```{r}
+network_int <- keras_model_sequential() %>% 
+  layer_dense(units = 2^5, activation = "relu", input_shape = 8) %>% 
+  # layer_dense(units = 2^5, activation = "relu") %>% 
+  layer_dense(units = 30, activation = "softmax")
+```
+
+Here, the only thing we need to chance is the loss function. `categorical_crossentropy`, expects the labels to follow a categorical encoding, but `sparse_categorical_crossentropy` expects integer labels. 
+
+```{r}
+network_int %>% compile(
+  optimizer = "rmsprop",
+  loss = "sparse_categorical_crossentropy",
+  metrics = c("accuracy")
+)
+```
+
+Before we train the model, let's make a validation set, like we did above. We'll use the original training set for this.
+
+```{r}
+val_train_labels <- train_labels[index]
+train_labels <- train_labels[-index]
+```
+
+Now let's train our model `network_int` using the integer data, instead of the vectorized data:
+
+```{r}
+history_int <- network_int %>% fit(
+  train_data_vec,
+  train_labels,
+  epochs = 9,
+  batch_size = 512,
+  validation_split = list(val_data_vec, val_train_labels)
+)
+```
+
+This new loss function is mathematically the same as `categorical_crossentropy`. It just has a different interface. When we look at our metrics below we'll use the original model, that accessed the vectorized data. If you want to use `network_int` make sure you use the original integer labels of the test set, `test_labels`, not `test_labels_vec`. 
+
+## Part 5: Check output
+
+Let's return to our original model using the vectorized data:
+

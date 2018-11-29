@@ -1,0 +1,207 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Initialize packages
+library(keras)
+library(tidyverse)
+```
+
+
+## Obtain data &  Prepare data:
+
+```{r eval = TRUE}
+
+abalone_names <- c("Type",
+                   "LongestShell",
+                   "Diameter",
+                   "Height",
+                   "WholeWeight",
+                   "WhuckedWeight",
+                   "VisceraWeight",
+                   "ShellWeight",
+                   "Rings")
+
+abalone <- read.csv("Abalone/abalone.data",
+                    header = F,
+                    col.names = abalone_names)
+
+
+
+# Convert sex to integer :
+abalone %>% 
+  mutate(Type = as.integer(Type)) -> abalone
+
+```
+
+```{r}
+glimpse(abalone)
+```
+
+```{r}
+plyr::count(abalone$Rings) %>% 
+  knitr::kable()
+```
+
+All values from 1-27 & 29 are present. The training and test set should contain at least one representative of each group.
+
+## Examine data:
+
+```{r}
+tabplot::tableplot(abalone)
+```
+
+# plot the data anew:
+
+```{r}
+abalone %>% 
+  select(-Rings) %>% 
+  gather() %>%
+  ggplot(aes(key, value)) +
+  geom_jitter(shape = 1, alpha = 0.2)
+```
+
+
+```{r}
+ggplot(abalone, aes(Rings)) +
+  geom_bar() +
+  scale_x_continuous("Number of Rings", breaks = 1:29) +
+  coord_cartesian(expand = 0) +
+  theme_minimal()
+
+```
+
+## The training and test sets:
+
+```{r}
+train_n <- round(0.8*nrow(abalone))
+test_n <- round(0.2*nrow(abalone))
+```
+
+number of training instances n = `r train_n`.
+
+number of test instances n = `r test_n`.
+
+number of features d = `r ncol(abalone) - 1`.
+
+number of classes K = `r length(unique(abalone$rings))`.
+
+### Split up training and test
+
+## Convert to a matrix:
+
+```{r}
+
+abalone <- as.matrix(abalone)
+
+# add additional vector to make match even
+add_on_matrix <- matrix(999, ncol = 8, nrow = 28)
+add_on_vector <- c(1:27,29)
+
+set.seed(136)
+train_index <- sample(seq_len(nrow(abalone)), train_n)
+
+train_data <- unname(abalone[train_index, -9])
+train_data <- rbind(train_data, add_on_matrix)
+
+train_labels <- unname(abalone[train_index, 9])
+train_labels <- c(train_labels, add_on_vector)
+
+test_data <- unname(abalone[-train_index, -9])
+test_data <- rbind(test_data, add_on_matrix)
+
+test_labels <- unname(abalone[-train_index, 9])
+test_labels <- c(test_labels, add_on_vector)
+
+# test_index <- !(1:nrow(abalone) %in% train_index)
+# test_data <- unname(abalone[test_index, -9])
+# test_labels <- unname(abalone[test_index, 9])
+
+rm(abalone, abalone_names, train_n, test_n, train_index)
+
+```
+
+
+```{r}
+str(train_data)
+str(test_data)
+
+```
+
+
+
+## Prepare labels:
+
+The `_labels` objects contain the news wire labels. Each newswire can only have one *label* (i.e. "sigle-label"), from a total of 46 possible *classes* (i.e. "multi-class"). The classes are just given numerical values (0 - 45), it doesn't matter what they are actually called, although that information would be helpful in understanding mis-labeling.
+
+```{r strLabelsPre}
+table(train_labels)
+```
+
+```{r strLabelsPre}
+table(test_labels)
+```
+
+Some classes are very common, which we'll see play out in our confusion matrix below 
+
+```{r plotLabelsPre}
+# Note plyr not dplyr here. I'm just using a shortcut
+library(ggplot2)
+train_labels %>% 
+  plyr::count() %>%
+  ggplot(aes(x, freq)) +
+  geom_col()
+```
+
+The distribution of the test and training set should be roughly equivalent, so let's have a look. 
+
+```{r}
+data.frame(x = train_labels) %>% 
+  group_by(x) %>% 
+  summarise(train_freq = 100*n()/length(train_labels)) -> train_labels_df
+
+data.frame(x  = test_labels) %>% 
+  group_by(x) %>% 
+  summarise(test_freq = 100 * n()/length(test_labels)) %>% 
+  inner_join(train_labels_df, by="x") %>% 
+  gather(key, value, -x) %>% 
+  ggplot(aes(x, value, fill = key)) +
+  geom_col(position = "dodge") +
+  # scale_y_continuous("Percentage", limits = c(0,20), expand = c(0,0)) +
+  # scale_x_continuous("Label", breaks = 0:45, expand = c(0,0)) +
+  scale_fill_manual("", labels = c("test","train"), values = c("#AEA5D0", "#54C8B7")) +
+  theme_classic() +
+  theme(legend.position = c(0.8, 0.8),
+        axis.line.x = element_blank(),
+        axis.text = element_text(colour = "black"))
+```
+
+We treat these just like how we treated the MNIST labels in the previous unit. We make the format match the output we expect to get from softmax so that we can make a direct comparison.
+
+```{r prepLabels}
+train_labels_vec <- to_categorical(train_labels)
+test_labels_vec <- to_categorical(test_labels)
+```
+
+```{r}
+colSums(test_labels_vec)
+colSums(train_labels_vec)
+```
+
+
+```{r strLabelsPost}
+str(train_labels_vec)
+str(test_labels_vec)
+```
+
+
+# Session Info
+
+```{r}
+sessionInfo()
+```
+
